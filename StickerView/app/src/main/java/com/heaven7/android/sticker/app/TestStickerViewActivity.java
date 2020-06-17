@@ -20,7 +20,7 @@ public class TestStickerViewActivity extends AppCompatActivity {
 
         mStickerView = findViewById(R.id.sticker_view);
 
-        mStickerView.setSticker(R.mipmap.ic_launcher);
+        mStickerView.setSticker(android.R.drawable.ic_menu_share);
         mStickerView.setOnClickListener(new StickerView.OnClickListener() {
             @Override
             public void onClickTextArea(StickerView view) {
