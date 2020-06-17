@@ -1,0 +1,43 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="Common_sticker_view">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:padding">8dp</item>
+
+        <item name="stv_sticker_init_width">140dp</item>
+        <item name="stv_sticker_init_height">72dp</item>
+        <item name="stv_line_color">#bfbfbf</item>
+
+        <item name="stv_line_pe_interval">5</item>
+        <item name="stv_line_pe_phase">1</item>
+        <item name="stv_dotRadius">6dp</item>
+        <item name="stv_dotColor">#2d8fff</item>
+
+        <item name="stv_text">旋转</item>
+        <item name="stv_text_enable">true</item>
+        <item name="stv_text_bg_round">4dp</item>
+        <item name="stv_text_bg_color">#2d8fff</item>
+
+        <item name="stv_text_color">#ffffff</item>
+        <item name="stv_text_size">14sp</item>
+        <item name="stv_text_marginStart">10dp</item>
+        <item name="stv_text_padding_start">12dp</item>
+        <item name="stv_text_padding_end">12dp</item>
+        <item name="stv_text_padding_top">2dp</item>
+        <item name="stv_text_padding_bottom">2dp</item>
+
+        <item name="stv_content_margin_start">10dp</item>
+        <item name="stv_content_margin_top">-10dp</item>
+        <item name="stv_proportional_zoom">true</item>
+
+    </style>
+</resources>
