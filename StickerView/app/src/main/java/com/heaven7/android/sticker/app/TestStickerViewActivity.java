@@ -20,8 +20,8 @@ public class TestStickerViewActivity extends AppCompatActivity {
 
         mStickerView = findViewById(R.id.sticker_view);
 
-        mStickerView.setSticker(android.R.drawable.ic_menu_share);
-        mStickerView.setOnClickListener(new StickerView.OnClickListener() {
+        mStickerView.setSticker(R.drawable.ic_launcher);
+        mStickerView.setCallback(new StickerView.Callback() {
             @Override
             public void onClickTextArea(StickerView view) {
                 view.rotateSticker(90);
