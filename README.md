@@ -1,5 +1,6 @@
 # Android-StickerView
 the sticker view which support scale and drag. often used for mark bitmap to another. eg : pdf
+用途： 可用于pdf签字的操作控件
 ![demo1](https://github.com/LightSun/Android-StickerView/blob/master/imgs/sticker_view.gif)
 
 
