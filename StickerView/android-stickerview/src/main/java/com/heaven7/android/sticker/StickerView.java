@@ -11,6 +11,8 @@ import android.graphics.Paint;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -34,7 +36,7 @@ public class StickerView extends View {
     private static final int DRAG_DIRECTION_RIGHT_BOTTOM = 3;
     private static final int DRAG_DIRECTION_RIGHT_TOP    = 4;
 
-    private final Params mParams = new Params();
+    private Params mParams = new Params();
     private final Rect mRect = new Rect();
     private final RectF mRectF = new RectF();
 
@@ -46,7 +48,7 @@ public class StickerView extends View {
 
     private PathEffect mEffect;
     private Bitmap mSticker;
-    private OnClickListener mOnClickListener;
+    private Callback mCallback;
 
     private List<Decoration> mDecorations;
     private float mRotateDegree; //in clockwise
@@ -89,12 +91,13 @@ public class StickerView extends View {
     }
 
     /**
-     * set on click listener
-     * @param l the listener
+     * set the callback
+     * @param cb the Callback
      */
-    public void setOnClickListener(OnClickListener l) {
-        this.mOnClickListener = l;
+    public void setCallback(Callback cb) {
+        this.mCallback = cb;
     }
+
     /**
      * add decoration
      * @param decoration the decoration
@@ -223,6 +226,23 @@ public class StickerView extends View {
         return mParams.stickerHeight * 1f / mParams.rawStickerHeight;
     }
     //-------------------------------------------------------------
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        return new SavedState(superState, mParams);
+    }
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        this.mParams = ss.params;
+        reset();
+        postInvalidate();
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -365,7 +385,12 @@ public class StickerView extends View {
         mTextPaint.setTextSize(mParams.textSize);
         mTextPaint.getTextBounds(mParams.text, 0, mParams.text.length(), mRect);
     }
-    private int getContentWidth(){
+
+    /**
+     * get the whole content width
+     * @return the content width
+     */
+    public int getContentWidth(){
         final int stickerWidth = getStickerWidth();
         if(!mParams.textEnabled){
             return stickerWidth;
@@ -409,6 +434,41 @@ public class StickerView extends View {
         mParams.swapStickerWidthHeight();
         setStickerInternal(Utils.rotate(mSticker, degree));
     }
+    public static class SavedState extends BaseSavedState{
+
+        final Params params;
+
+        public SavedState(Parcelable superState, Params params) {
+            super(superState);
+            this.params = params;
+        }
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            params.writeToParcel(out, flags);
+        }
+        private SavedState(Parcel in) {
+            super(in);
+            params = new Params(in);
+        }
+
+        @Override
+        public String toString() {
+            String str = "StickerView.SavedState{"
+                    + Integer.toHexString(System.identityHashCode(this))
+                    + params.toString();
+            return str + "}";
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+    }
     private class Gesture0 implements GestureDetector.OnGestureListener{
         private int mDragDirection;
         private int mTmpStickerWidth;
@@ -439,12 +499,16 @@ public class StickerView extends View {
                     shouldHandle = true;
                 }else if(mDecorations != null){
                     for (Decoration decor: mDecorations){
+                        mRect.set(0, 0,0 ,0);
                         decor.getRangeRect(mRect);
-                        mRectF.set(mRect);
-                        if(containsInRect(mRectF, e.getX(), e.getY(), mParams.touchPadding)){
-                            mTouchDecoration = decor;
-                            shouldHandle = true;
-                            break;
+                        //if valid
+                        if(mRect.right > mRect.left && mRect.bottom > mRect.top){
+                            mRectF.set(mRect);
+                            if(containsInRect(mRectF, e.getX(), e.getY(), mParams.touchPadding)){
+                                mTouchDecoration = decor;
+                                shouldHandle = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -465,14 +529,14 @@ public class StickerView extends View {
         public boolean onSingleTapUp(MotionEvent e) {
             mRectF.set(0, 0, getStickerWidth(), getStickerHeight());
             if(containsInRect(mRectF, e.getX(), e.getY(), mParams.touchPadding)){
-                if(mOnClickListener != null){
-                    mOnClickListener.onClickSticker(StickerView.this);
+                if(mCallback != null){
+                    mCallback.onClickSticker(StickerView.this);
                     return true;
                 }
             }
             if(mParams.textEnabled && containsInRect(mTextArea, e.getX(), e.getY(), mParams.touchPadding)){
-                if(mOnClickListener != null){
-                    mOnClickListener.onClickTextArea(StickerView.this);
+                if(mCallback != null){
+                    mCallback.onClickTextArea(StickerView.this);
                     return true;
                 }
             }
@@ -585,7 +649,7 @@ public class StickerView extends View {
         }
     }
 
-    public static class Params{
+    public static class Params implements Parcelable {
         int rawStickerWidth;
         int rawStickerHeight;
         int stickerWidth;
@@ -685,12 +749,123 @@ public class StickerView extends View {
             stickerWidth = stickerHeight;
             stickerHeight = w;
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(this.rawStickerWidth);
+            dest.writeInt(this.rawStickerHeight);
+            dest.writeInt(this.stickerWidth);
+            dest.writeInt(this.stickerHeight);
+            dest.writeFloat(this.stickerScaleRatio);
+            dest.writeInt(this.lineColor);
+            dest.writeFloat(this.linePathInterval);
+            dest.writeFloat(this.linePathPhase);
+            dest.writeFloat(this.dotRadius);
+            dest.writeInt(this.dotColor);
+            dest.writeInt(this.textBgColor);
+            dest.writeInt(this.textBgRoundSize);
+            dest.writeInt(this.textColor);
+            dest.writeFloat(this.textSize);
+            dest.writeInt(this.textMarginStart);
+            dest.writeInt(this.textPaddingStart);
+            dest.writeInt(this.textPaddingTop);
+            dest.writeInt(this.textPaddingEnd);
+            dest.writeInt(this.textPaddingBottom);
+            dest.writeString(this.text);
+            dest.writeByte(this.textEnabled ? (byte) 1 : (byte) 0);
+            dest.writeByte(this.proportionalZoom ? (byte) 1 : (byte) 0);
+            dest.writeInt(this.marginStart);
+            dest.writeInt(this.marginTop);
+            dest.writeFloat(this.minScale);
+            dest.writeFloat(this.maxScale);
+            dest.writeInt(this.touchPadding);
+        }
+
+        protected Params(Parcel in) {
+            this.rawStickerWidth = in.readInt();
+            this.rawStickerHeight = in.readInt();
+            this.stickerWidth = in.readInt();
+            this.stickerHeight = in.readInt();
+            this.stickerScaleRatio = in.readFloat();
+            this.lineColor = in.readInt();
+            this.linePathInterval = in.readFloat();
+            this.linePathPhase = in.readFloat();
+            this.dotRadius = in.readFloat();
+            this.dotColor = in.readInt();
+            this.textBgColor = in.readInt();
+            this.textBgRoundSize = in.readInt();
+            this.textColor = in.readInt();
+            this.textSize = in.readFloat();
+            this.textMarginStart = in.readInt();
+            this.textPaddingStart = in.readInt();
+            this.textPaddingTop = in.readInt();
+            this.textPaddingEnd = in.readInt();
+            this.textPaddingBottom = in.readInt();
+            this.text = in.readString();
+            this.textEnabled = in.readByte() != 0;
+            this.proportionalZoom = in.readByte() != 0;
+            this.marginStart = in.readInt();
+            this.marginTop = in.readInt();
+            this.minScale = in.readFloat();
+            this.maxScale = in.readFloat();
+            this.touchPadding = in.readInt();
+        }
+
+        public static final Parcelable.Creator<Params> CREATOR = new Parcelable.Creator<Params>() {
+            @Override
+            public Params createFromParcel(Parcel source) {
+                return new Params(source);
+            }
+
+            @Override
+            public Params[] newArray(int size) {
+                return new Params[size];
+            }
+        };
+
+        @Override
+        public String toString() {
+            return "Params{" +
+                    "rawStickerWidth=" + rawStickerWidth +
+                    ", rawStickerHeight=" + rawStickerHeight +
+                    ", stickerWidth=" + stickerWidth +
+                    ", stickerHeight=" + stickerHeight +
+                    ", stickerScaleRatio=" + stickerScaleRatio +
+                    ", lineColor=" + lineColor +
+                    ", linePathInterval=" + linePathInterval +
+                    ", linePathPhase=" + linePathPhase +
+                    ", dotRadius=" + dotRadius +
+                    ", dotColor=" + dotColor +
+                    ", textBgColor=" + textBgColor +
+                    ", textBgRoundSize=" + textBgRoundSize +
+                    ", textColor=" + textColor +
+                    ", textSize=" + textSize +
+                    ", textMarginStart=" + textMarginStart +
+                    ", textPaddingStart=" + textPaddingStart +
+                    ", textPaddingTop=" + textPaddingTop +
+                    ", textPaddingEnd=" + textPaddingEnd +
+                    ", textPaddingBottom=" + textPaddingBottom +
+                    ", text='" + text + '\'' +
+                    ", textEnabled=" + textEnabled +
+                    ", proportionalZoom=" + proportionalZoom +
+                    ", marginStart=" + marginStart +
+                    ", marginTop=" + marginTop +
+                    ", minScale=" + minScale +
+                    ", maxScale=" + maxScale +
+                    ", touchPadding=" + touchPadding +
+                    '}';
+        }
     }
 
     /**
      * the click listener for sticker-view
       */
-    public interface OnClickListener{
+    public interface Callback{
         /**
          * called on click text area
          * @param view the view
@@ -709,16 +884,16 @@ public class StickerView extends View {
      */
     public abstract static class Decoration{
         /**
-         * called on draw
+         * called on draw this.
          * @param view the sticker view
          * @param stickerWidth the sticker width
          * @param stickerHeight the sticker height
          */
-        public abstract void onDraw(StickerView view,int stickerWidth, int stickerHeight);
+        public abstract void onDraw(StickerView view, int stickerWidth, int stickerHeight);
 
         /**
          * get range rect. which used for check motion event.
-         * @param rect the out range rect
+         * @param rect the out range rect.exclude padding, {@linkplain StickerView#getMarginStart()} and {@linkplain StickerView#getMarginTop()}.
          */
         public abstract void getRangeRect(Rect rect);
 
