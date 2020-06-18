@@ -21,7 +21,7 @@ import android.graphics.RectF;
         out.top += (srcRange.height() - out.bottom) / 2.0f;
         //  canvas.drawText(text, bounds.left, bounds.top - mPaint.ascent(), mPaint);
     }
-
+    //better performance for direct scale
     public static Bitmap rotate(Bitmap bm, float degree) {
         Matrix m = new Matrix();
         m.setRotate(degree, (float) bm.getWidth() / 2, (float) bm.getHeight() / 2);
