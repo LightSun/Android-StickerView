@@ -6,6 +6,10 @@
         <attr name="stv_sticker_init_height" format="dimension|reference"/>
         <!-- init sticker width and height by scale-->
         <attr name="stv_sticker_init_scale_ratio" format="float|reference"/>
+        <attr name="stv_sticker_init_fix_orientation" format="enum">
+            <enum name="fix_width" value="1"/>
+            <enum name="fix_height" value="2"/>
+        </attr>
 
         <attr name="stv_line_color" format="color|reference"/>
         <attr name="stv_line_pe_interval" format="float|reference"/>

@@ -36,6 +36,9 @@ public class StickerView extends View {
     private static final int DRAG_DIRECTION_RIGHT_BOTTOM = 3;
     private static final int DRAG_DIRECTION_RIGHT_TOP    = 4;
 
+    private static final int FIX_WIDTH  = 1;
+    private static final int FIX_HEIGHT = 2;
+
     private Params mParams = new Params();
     private final Rect mRect = new Rect();
     private final RectF mRectF = new RectF();
@@ -79,6 +82,7 @@ public class StickerView extends View {
      * after you change some params from {@linkplain #getParams()}. you may should call this.
      */
     public void reset(){
+        mRotateDegree = 0;
         mEffect = new DashPathEffect(new float[]{mParams.linePathInterval, mParams.linePathInterval}, mParams.linePathPhase);
         getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -168,7 +172,13 @@ public class StickerView extends View {
      * @param bitmap the sticker
      */
     public void setSticker(Bitmap bitmap){
-        setStickerInternal(bitmap);
+        mSticker = bitmap;
+        mParams.setStickerWidthHeight(bitmap, true);
+        //zoom-eq. we need reset sticker width and height. if not fix width and height
+        if(mParams.fixOrientation == 0){
+            fitZoomEqual(false);
+        }
+
         mRotateDegree = 0;
         invalidate();
     }
@@ -423,7 +433,7 @@ public class StickerView extends View {
     }
     private void setStickerInternal(Bitmap bitmap){
         mSticker = bitmap;
-        mParams.setStickerWidthHeight(bitmap);
+        mParams.setStickerWidthHeight(bitmap, false);
         //zoom-eq. we need reset sticker width and height.
         fitZoomEqual(false);
     }
@@ -652,9 +662,10 @@ public class StickerView extends View {
     public static class Params implements Parcelable {
         int rawStickerWidth;
         int rawStickerHeight;
-        int stickerWidth;
-        int stickerHeight;
+        public int stickerWidth;
+        public int stickerHeight;
         float stickerScaleRatio;
+        int fixOrientation; //init fix width or height
         //line
         int lineColor;
         float linePathInterval;
@@ -685,8 +696,7 @@ public class StickerView extends View {
 
         int touchPadding;
 
-        private Params() { }
-
+        private Params(){}
         public void init(TypedArray ta){
             rawStickerWidth = stickerWidth = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_width, 0);
             rawStickerHeight = stickerHeight = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_height, 0);
@@ -720,6 +730,7 @@ public class StickerView extends View {
             maxScale = ta.getFloat(R.styleable.StickerView_stv_max_scale, maxScale);
 
             touchPadding = ta.getDimensionPixelSize(R.styleable.StickerView_stv_touch_padding, 10);
+            fixOrientation = ta.getInt(R.styleable.StickerView_stv_sticker_init_fix_orientation, 0);
         }
         void setStickerWidth0(int width){
             rawStickerWidth = stickerWidth = width;
@@ -727,16 +738,33 @@ public class StickerView extends View {
         void setStickerHeight0(int height){
             rawStickerHeight = stickerHeight = height;
         }
-        void setStickerWidthHeight(Bitmap sticker){
+        void setStickerWidthHeight(Bitmap sticker, boolean checkFixOrientation){
             if(stickerScaleRatio > 0){
                 setStickerWidth0((int) (sticker.getWidth() * stickerScaleRatio));
                 setStickerHeight0((int) (sticker.getHeight() * stickerScaleRatio));
             }else {
-                if(stickerWidth <= 0){
-                    setStickerWidth0(sticker.getWidth());
+                //fix height. compute width
+                if(checkFixOrientation && fixOrientation == FIX_HEIGHT){
+                    if(stickerHeight == 0){
+                        throw new IllegalStateException();
+                    }
+                    //sw / sh = w / stickerHeight
+                    setStickerWidth0(sticker.getWidth() * stickerHeight / sticker.getHeight());
+                }else {
+                    if(stickerWidth <= 0){
+                         setStickerWidth0(sticker.getWidth());
+                    }
                 }
-                if(stickerHeight <= 0){
-                    setStickerHeight0(sticker.getHeight());
+                //fix width .compute height
+                if(checkFixOrientation && fixOrientation == FIX_WIDTH){
+                    if(stickerWidth == 0){
+                        throw new IllegalStateException();
+                    }
+                    setStickerHeight0(sticker.getHeight() * stickerWidth / sticker.getWidth());
+                }else {
+                    if(stickerHeight <= 0){
+                        setStickerHeight0(sticker.getHeight());
+                    }
                 }
             }
         }

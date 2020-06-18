@@ -13,6 +13,7 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:padding">8dp</item>
 
+        <item name="stv_sticker_init_fix_orientation">fix_width</item>
         <item name="stv_sticker_init_width">140dp</item>
         <item name="stv_sticker_init_height">72dp</item>
         <item name="stv_line_color">#bfbfbf</item>
@@ -28,12 +29,12 @@
         <item name="stv_text_bg_color">#2d8fff</item>
 
         <item name="stv_text_color">#ffffff</item>
-        <item name="stv_text_size">14sp</item>
+        <item name="stv_text_size">17sp</item>
         <item name="stv_text_marginStart">10dp</item>
-        <item name="stv_text_padding_start">12dp</item>
-        <item name="stv_text_padding_end">12dp</item>
-        <item name="stv_text_padding_top">2dp</item>
-        <item name="stv_text_padding_bottom">2dp</item>
+        <item name="stv_text_padding_start">16dp</item>
+        <item name="stv_text_padding_end">16dp</item>
+        <item name="stv_text_padding_top">6dp</item>
+        <item name="stv_text_padding_bottom">6dp</item>
 
         <item name="stv_content_margin_start">10dp</item>
         <item name="stv_content_margin_top">-10dp</item>
