@@ -8,6 +8,7 @@
     <com.heaven7.android.sticker.StickerView
         android:id="@+id/sticker_view"
         style="@style/Common_sticker_view"
+        android:padding="30dp"
         />
 
 </LinearLayout>

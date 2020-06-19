@@ -41,6 +41,8 @@
         <attr name="stv_max_scale" format="float|reference"/>
         <!-- touch padding as slop -->
         <attr name="stv_touch_padding" format="dimension|reference"/>
+        <!-- sticker 居中 -->
+        <attr name="stv_sticker_init_center" format="boolean|reference"/>
     </declare-styleable>
 
 </resources>

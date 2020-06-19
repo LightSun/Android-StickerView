@@ -178,7 +178,17 @@ public class StickerView extends View {
         if(mParams.fixOrientation == 0){
             fitZoomEqual(false);
         }
-
+        if(mParams.stickerInCenter){
+            getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    getViewTreeObserver().removeOnPreDrawListener(this);
+                    mParams.marginStart = (getWidth() - getPaddingStart() - getPaddingEnd() - mParams.stickerWidth ) / 2;
+                    mParams.marginTop = (getHeight() - getPaddingTop() - getPaddingBottom() - mParams.stickerHeight ) / 2;
+                    return true;
+                }
+            });
+        }
         mRotateDegree = 0;
         invalidate();
     }
@@ -665,7 +675,8 @@ public class StickerView extends View {
         public int stickerWidth;
         public int stickerHeight;
         float stickerScaleRatio;
-        int fixOrientation; //init fix width or height
+        int fixOrientation;       //init fix width or height
+        boolean stickerInCenter;  //init in center
         //line
         int lineColor;
         float linePathInterval;
@@ -731,6 +742,7 @@ public class StickerView extends View {
 
             touchPadding = ta.getDimensionPixelSize(R.styleable.StickerView_stv_touch_padding, 10);
             fixOrientation = ta.getInt(R.styleable.StickerView_stv_sticker_init_fix_orientation, 0);
+            stickerInCenter = ta.getBoolean(R.styleable.StickerView_stv_sticker_init_center, true);
         }
         void setStickerWidth0(int width){
             rawStickerWidth = stickerWidth = width;
