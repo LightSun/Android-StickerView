@@ -178,9 +178,7 @@ public class StickerView extends View {
         if(mParams.fixOrientation == 0){
             fitZoomEqual(false);
         }
-        if(mParams.stickerInCenter){
-            reset();
-        }
+        reset();
         mRotateDegree = 0;
         invalidate();
     }
