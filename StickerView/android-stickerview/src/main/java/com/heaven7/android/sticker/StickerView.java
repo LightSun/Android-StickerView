@@ -179,15 +179,7 @@ public class StickerView extends View {
             fitZoomEqual(false);
         }
         if(mParams.stickerInCenter){
-            getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    getViewTreeObserver().removeOnPreDrawListener(this);
-                    mParams.marginStart = (getWidth() - getPaddingStart() - getPaddingEnd() - mParams.stickerWidth ) / 2;
-                    mParams.marginTop = (getHeight() - getPaddingTop() - getPaddingBottom() - mParams.stickerHeight ) / 2;
-                    return true;
-                }
-            });
+            reset();
         }
         mRotateDegree = 0;
         invalidate();
@@ -420,14 +412,19 @@ public class StickerView extends View {
         return stickerWidth + mParams.textMarginStart + textWidth + mParams.textPaddingStart + mParams.textPaddingEnd;
     }
     private void adjustMargin(){
-        //getStickerHeight as content height
-        if(mParams.marginStart < 0){
-            mParams.marginStart = getWidth() - getContentWidth() - getPaddingStart()
-                    - getPaddingEnd() - Math.abs(mParams.marginStart);
-        }
-        if(mParams.marginTop < 0){
-            mParams.marginTop = getHeight() - getStickerHeight() - getPaddingTop()
-                    - getPaddingBottom() - Math.abs(mParams.marginTop);
+        if(mParams.stickerInCenter){
+            mParams.marginStart = (getWidth() - getPaddingStart() - getPaddingEnd() - mParams.stickerWidth ) / 2;
+            mParams.marginTop = (getHeight() - getPaddingTop() - getPaddingBottom() - mParams.stickerHeight ) / 2;
+        }else {
+            //getStickerHeight as content height
+            if(mParams.marginStart < 0){
+                mParams.marginStart = getWidth() - getContentWidth() - getPaddingStart()
+                        - getPaddingEnd() - Math.abs(mParams.marginStart);
+            }
+            if(mParams.marginTop < 0){
+                mParams.marginTop = getHeight() - getStickerHeight() - getPaddingTop()
+                        - getPaddingBottom() - Math.abs(mParams.marginTop);
+            }
         }
     }
     private boolean reachScaleBound(){
