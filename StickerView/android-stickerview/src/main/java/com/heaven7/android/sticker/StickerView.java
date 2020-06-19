@@ -812,6 +812,7 @@ public class StickerView extends View {
             dest.writeFloat(this.minScale);
             dest.writeFloat(this.maxScale);
             dest.writeInt(this.touchPadding);
+            dest.writeInt(this.fixOrientation);
         }
 
         protected Params(Parcel in) {
@@ -842,6 +843,7 @@ public class StickerView extends View {
             this.minScale = in.readFloat();
             this.maxScale = in.readFloat();
             this.touchPadding = in.readInt();
+            this.fixOrientation = in.readInt();
         }
 
         public static final Parcelable.Creator<Params> CREATOR = new Parcelable.Creator<Params>() {
@@ -864,6 +866,7 @@ public class StickerView extends View {
                     ", stickerWidth=" + stickerWidth +
                     ", stickerHeight=" + stickerHeight +
                     ", stickerScaleRatio=" + stickerScaleRatio +
+                    ", fixOrientation=" + fixOrientation +
                     ", lineColor=" + lineColor +
                     ", linePathInterval=" + linePathInterval +
                     ", linePathPhase=" + linePathPhase +
