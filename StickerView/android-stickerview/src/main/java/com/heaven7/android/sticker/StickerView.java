@@ -74,8 +74,6 @@ public class StickerView extends View {
             ta.recycle();
         }
         mGestureDetector = GestureDetectorFactory.getDelegate(context, new Gesture0());
-
-        reset();
     }
 
     /**
