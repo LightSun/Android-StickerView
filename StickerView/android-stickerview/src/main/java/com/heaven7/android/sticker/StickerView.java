@@ -80,6 +80,12 @@ public class StickerView extends View {
      * after you change some params from {@linkplain #getParams()}. you may should call this.
      */
     public void reset(){
+        resetInternal(true);
+    }
+    private void resetInternal(boolean resetWH){
+        if(resetWH){
+            mParams.resetStickerWidthHeight();
+        }
         mRotateDegree = 0;
         mEffect = new DashPathEffect(new float[]{mParams.linePathInterval, mParams.linePathInterval}, mParams.linePathPhase);
         getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -91,7 +97,6 @@ public class StickerView extends View {
             }
         });
     }
-
     /**
      * set the callback
      * @param cb the Callback
@@ -176,8 +181,7 @@ public class StickerView extends View {
         if(mParams.fixOrientation == 0){
             fitZoomEqual(false);
         }
-        reset();
-        mRotateDegree = 0;
+        resetInternal(false);
         invalidate();
     }
 
@@ -491,10 +495,44 @@ public class StickerView extends View {
         private int mTmpMarginStart;
         private Decoration mTouchDecoration;
 
-        private void moveInternal(int dx, int dy){
+        private void moveInternal(int dx, int dy, boolean dragScale){
             mParams.marginStart = mTmpMarginStart + dx;
             mParams.marginTop = mTmpMarginTop + dy;
+            handleReachEdge(dragScale);
             invalidate();
+        }
+        //out of screen not permit
+        private void handleReachEdge(boolean scale){
+            boolean shouldFitZoom = false;
+            if(mParams.marginStart < 0){
+                mParams.marginStart = 0;
+            }else {
+                int val = mParams.marginStart + getPaddingStart() + getPaddingEnd() + mParams.stickerWidth;
+                if(val > getWidth()){
+                    if(scale){
+                        mParams.stickerWidth -= val - getWidth();
+                        shouldFitZoom = true;
+                    }else {
+                        mParams.marginStart -= val - getWidth();
+                    }
+                }
+            }
+            if(mParams.marginTop < 0){
+                mParams.marginTop = 0;
+            }else {
+                int val = mParams.marginTop + getPaddingTop() + getPaddingBottom() + mParams.stickerHeight;
+                if(val > getHeight()){
+                    if(scale){
+                        mParams.stickerHeight -= val - getHeight();
+                        shouldFitZoom = true;
+                    }else {
+                        mParams.marginTop -= val - getHeight();
+                    }
+                }
+            }
+            if(shouldFitZoom){
+                fitZoomEqual(true);
+            }
         }
 
         @Override
@@ -585,7 +623,7 @@ public class StickerView extends View {
                     if(newRight != oldRight){
                         dx -= newRight - oldRight;
                     }
-                    moveInternal(dx, 0);
+                    moveInternal(dx, 0, true);
                 }break;
 
                 case DRAG_DIRECTION_LEFT_TOP:{
@@ -610,7 +648,7 @@ public class StickerView extends View {
                     if(newBottom != oldBottom){
                         dy -= newBottom - oldBottom;
                     }
-                    moveInternal(dx, dy);
+                    moveInternal(dx, dy, true);
                 }break;
 
                 case DRAG_DIRECTION_RIGHT_BOTTOM:{
@@ -624,6 +662,7 @@ public class StickerView extends View {
                         mParams.stickerHeight = oldHeight;
                         return true;
                     }
+                    handleReachEdge(true);
                     invalidate();
                 }break;
 
@@ -643,12 +682,12 @@ public class StickerView extends View {
                     if(newBottom != oldBottom){
                         dy -= newBottom - oldBottom;
                     }
-                    moveInternal(0, dy);
+                    moveInternal(0, dy, true);
                 }break;
 
                 default:
                     //not drag
-                    moveInternal(dx, dy);
+                    moveInternal(dx, dy, false);
             }
             return true;
         }
@@ -736,6 +775,10 @@ public class StickerView extends View {
             touchPadding = ta.getDimensionPixelSize(R.styleable.StickerView_stv_touch_padding, 10);
             fixOrientation = ta.getInt(R.styleable.StickerView_stv_sticker_init_fix_orientation, 0);
             stickerInCenter = ta.getBoolean(R.styleable.StickerView_stv_sticker_init_center, true);
+        }
+        void resetStickerWidthHeight() {
+            stickerWidth = rawStickerWidth;
+            stickerHeight = rawStickerHeight;
         }
         void setStickerWidth0(int width){
             rawStickerWidth = stickerWidth = width;

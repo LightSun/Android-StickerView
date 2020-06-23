@@ -1,6 +1,7 @@
 package com.heaven7.android.sticker.app;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -31,5 +32,10 @@ public class TestStickerViewActivity extends AppCompatActivity {
                 Toast.makeText(view.getContext(), "Sticker is clicked.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void onClickReset(View view) {
+        mStickerView.reset();
+        mStickerView.invalidate();
     }
 }
