@@ -36,6 +36,7 @@ public class TestStickerViewActivity extends AppCompatActivity {
 
     public void onClickReset(View view) {
         mStickerView.reset();
+       // mStickerView.setSticker(R.drawable.ic_launcher);
         mStickerView.invalidate();
     }
 }
