@@ -78,11 +78,9 @@ public class StickerView extends View {
 
     /**
      * after you change some params from {@linkplain #getParams()}. you may should call this.
+     * @param resetWH true to reset sticker width and height
      */
-    public void reset(){
-        resetInternal(true);
-    }
-    private void resetInternal(boolean resetWH){
+    public void reset(boolean resetWH){
         if(resetWH){
             mParams.resetStickerWidthHeight();
         }
@@ -181,7 +179,7 @@ public class StickerView extends View {
         if(mParams.fixOrientation == 0){
             fitZoomEqual(false);
         }
-        resetInternal(false);
+        reset(false);
         invalidate();
     }
 
@@ -252,7 +250,7 @@ public class StickerView extends View {
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
         this.mParams = ss.params;
-        reset();
+        reset(false);
         postInvalidate();
     }
 
