@@ -839,6 +839,8 @@ public class StickerView extends View {
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(this._rawStickerWidth);
+            dest.writeInt(this._rawStickerHeight);
             dest.writeInt(this.rawStickerWidth);
             dest.writeInt(this.rawStickerHeight);
             dest.writeInt(this.stickerWidth);
@@ -870,6 +872,8 @@ public class StickerView extends View {
         }
 
         protected Params(Parcel in) {
+            this._rawStickerWidth = in.readInt();
+            this._rawStickerHeight = in.readInt();
             this.rawStickerWidth = in.readInt();
             this.rawStickerHeight = in.readInt();
             this.stickerWidth = in.readInt();
