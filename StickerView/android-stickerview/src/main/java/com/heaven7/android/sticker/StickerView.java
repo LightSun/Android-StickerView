@@ -700,8 +700,13 @@ public class StickerView extends View {
     }
 
     public static class Params implements Parcelable {
+        //can't change
+        int _rawStickerWidth;
+        int _rawStickerHeight;
+
         int rawStickerWidth;
         int rawStickerHeight;
+
         public int stickerWidth;
         public int stickerHeight;
         float stickerScaleRatio;
@@ -732,7 +737,7 @@ public class StickerView extends View {
         //content margin top and bottom
         public int marginStart = 0;
         public int marginTop = 0 ;
-        float minScale = 0.5f;
+        float minScale = 0.675f;
         float maxScale = 1000000;
 
         int touchPadding;
@@ -742,6 +747,8 @@ public class StickerView extends View {
             rawStickerWidth = stickerWidth = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_width, 0);
             rawStickerHeight = stickerHeight = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_height, 0);
             stickerScaleRatio = ta.getFloat(R.styleable.StickerView_stv_sticker_init_scale_ratio, 0);
+            _rawStickerWidth = rawStickerWidth;
+            _rawStickerHeight = rawStickerHeight;
 
             lineColor = ta.getColor(R.styleable.StickerView_stv_line_color, Color.BLACK);
             linePathInterval = ta.getFloat(R.styleable.StickerView_stv_line_pe_interval, 0);
@@ -775,9 +782,10 @@ public class StickerView extends View {
             stickerInCenter = ta.getBoolean(R.styleable.StickerView_stv_sticker_init_center, true);
         }
         void resetStickerWidthHeight() {
-            stickerWidth = rawStickerWidth;
-            stickerHeight = rawStickerHeight;
+            stickerWidth = rawStickerWidth = _rawStickerWidth;
+            stickerHeight = rawStickerHeight = _rawStickerHeight;
         }
+        //effect raw
         void setStickerWidth0(int width){
             rawStickerWidth = stickerWidth = width;
         }

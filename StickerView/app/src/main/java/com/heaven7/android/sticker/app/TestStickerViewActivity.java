@@ -1,5 +1,7 @@
 package com.heaven7.android.sticker.app;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -21,7 +23,7 @@ public class TestStickerViewActivity extends AppCompatActivity {
 
         mStickerView = findViewById(R.id.sticker_view);
 
-        mStickerView.setSticker(R.drawable.ic_launcher);
+        mStickerView.setSticker(getStickerBitmap());
         mStickerView.setCallback(new StickerView.Callback() {
             @Override
             public void onClickTextArea(StickerView view) {
@@ -35,8 +37,14 @@ public class TestStickerViewActivity extends AppCompatActivity {
     }
 
     public void onClickReset(View view) {
-        mStickerView.reset();
-       // mStickerView.setSticker(R.drawable.ic_launcher);
-        mStickerView.invalidate();
+        mStickerView.reset(true);
+        mStickerView.setSticker(getStickerBitmap());
+       // mStickerView.invalidate();
+    }
+    private Bitmap getStickerBitmap(){
+        int w = 300;
+        int h = 200;
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        return  Bitmap.createScaledBitmap(bitmap, w, h, false);
     }
 }
