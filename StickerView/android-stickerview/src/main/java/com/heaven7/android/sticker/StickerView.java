@@ -77,6 +77,24 @@ public class StickerView extends View {
     }
 
     /**
+     * get the result bitmap
+     * @return the bitmap
+     * @since 1.0.6
+     */
+    public Bitmap getResultBitmap(){
+        final Rect mRect = new Rect();
+        final RectF mRectF = new RectF();
+
+        mRect.set(0, 0, mSticker.getWidth(), mSticker.getHeight());
+        mRectF.set(0, 0, getStickerWidth(), getStickerHeight());
+
+        Bitmap bg = Bitmap.createBitmap(getStickerWidth(), getStickerHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bg);
+        canvas.drawBitmap(mSticker, mRect, mRectF, null);
+        return bg;
+    }
+
+    /**
      * after you change some params from {@linkplain #getParams()}. you may should call this.
      * @param resetWH true to reset sticker width and height
      */
@@ -120,6 +138,13 @@ public class StickerView extends View {
     public Params getParams(){
         return mParams;
     }
+
+    /*
+     * call this that if you confirm changed some of params.
+     */
+    /*public void applyParams(){
+
+    }*/
     /**
      * get the margin start
      * @return the margin start
@@ -445,9 +470,11 @@ public class StickerView extends View {
     //TODO currently, only support 90*n
     private void rotateStickerInternal(float degree){
         degree = degree % 360;
-        mRotateDegree += degree;
-        mParams.swapStickerWidthHeight();
-        setStickerInternal(Utils.rotate(mSticker, degree));
+        mRotateDegree = (mRotateDegree + degree) % 360;
+        if(degree == 90 || degree == 270){
+            mParams.swapStickerWidthHeight();
+        }
+        setStickerInternal(Utils.rotate(mSticker, degree)); //Utils.rotate: only work 90.
     }
     public static class SavedState extends BaseSavedState{
 
@@ -742,7 +769,7 @@ public class StickerView extends View {
 
         int touchPadding;
 
-        private Params(){}
+        public Params(){}
         public void init(TypedArray ta){
             rawStickerWidth = stickerWidth = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_width, 0);
             rawStickerHeight = stickerHeight = ta.getDimensionPixelOffset(R.styleable.StickerView_stv_sticker_init_height, 0);
@@ -869,9 +896,13 @@ public class StickerView extends View {
             dest.writeFloat(this.maxScale);
             dest.writeInt(this.touchPadding);
             dest.writeInt(this.fixOrientation);
+            dest.writeByte(this.stickerInCenter ? (byte) 1 : (byte) 0);
         }
 
         protected Params(Parcel in) {
+            setFromParcel(in);
+        }
+        public void setFromParcel(Parcel in){
             this._rawStickerWidth = in.readInt();
             this._rawStickerHeight = in.readInt();
             this.rawStickerWidth = in.readInt();
@@ -902,6 +933,7 @@ public class StickerView extends View {
             this.maxScale = in.readFloat();
             this.touchPadding = in.readInt();
             this.fixOrientation = in.readInt();
+            this.stickerInCenter = in.readByte() != 0;
         }
 
         public static final Parcelable.Creator<Params> CREATOR = new Parcelable.Creator<Params>() {
